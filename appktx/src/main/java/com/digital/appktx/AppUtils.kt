@@ -9,6 +9,9 @@ import android.net.Uri
 import android.os.Build
 import android.text.Spannable
 import android.text.SpannableStringBuilder
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
+import android.text.style.ForegroundColorSpan
 import android.util.Base64
 import android.view.MotionEvent
 import android.view.View
@@ -43,7 +46,7 @@ val LANGUAGE = "lang_code"
 fun changeAppLocale(
     langCode: String,
     context: Context?,
-    sendBroadCast:()->Unit
+    sendBroadCast: () -> Unit
 ): ContextWrapper {
     context?.let {
         val locale = Locale(langCode)
@@ -399,7 +402,7 @@ fun EditText.enableNestedScrolling() {
 
 }
 
-fun <T: RecyclerView.Adapter<*>>RecyclerView.getAdapter():T? = adapter as T?
+fun <T : RecyclerView.Adapter<*>> RecyclerView.getAdapter(): T? = adapter as T?
 
 //fun EditText.validation(){
 //
@@ -421,10 +424,84 @@ fun View.inVisible() {
 fun TextView.isEmptyText(): Boolean {
     return text.toString().isEmptyText()
 }
-
-fun TextView.getLastCharIndexOfLine(line:Int){
-    this.layout.getLineVisibleEnd(0)
+/**
+ *  get index based in all text,not just the specific line.
+ */
+fun TextView.getLastCharIndexOfLine(line: Int): Int {
+    return this.layout.getLineVisibleEnd(line)
 }
+/**
+ * set clickable part of text with swipe it whiling clicking.
+ * e.g Read more <->Read Less
+ * */
+fun TextView.setToggleClickableSequenceText(text: String, text2: String, textColor:Int, maxLines: Int, clickCallBack: (() -> Unit)?) {
+    if (maxLines <= 0) return
+    if (layout.lineCount > maxLines) {
+        val lastChar = getLastCharIndexOfLine(maxLines - 1)
+//        tag = this.text.toString()
+        if (lastChar > text.length) {
+            val finalText = this.text.substring(0, lastChar - text.length) + 1 + " " + text
+            val finalSecondText = "${this.text}  $text2"
+            if (clickCallBack != null) {
+                movementMethod = LinkMovementMethod.getInstance()
+                val sText = SpannableStringBuilder(finalText)
+                val sText2 = SpannableStringBuilder(finalSecondText)
+                val sClick = object : ClickableSpan() {
+                    override fun onClick(widget: View) {
+                        //swipe tag <=> text
+                        val tag1 = this@setToggleClickableSequenceText.tag as CharSequence
+                        this@setToggleClickableSequenceText.tag = this@setToggleClickableSequenceText.text
+                        this@setToggleClickableSequenceText.text = tag1
+
+                        clickCallBack.invoke()
+
+                    }
+                }
+                //first clickable text
+                //click span
+                sText.setSpan(
+                    sClick,
+                    lastChar - text.length + 1,
+                    finalText.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                //color span
+                sText.setSpan(
+                    ForegroundColorSpan(textColor),
+                    lastChar - text.length + 1,
+                    finalText.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+
+                //second clickable text
+                //click span
+                sText2.setSpan(
+                    sClick,
+                    finalSecondText.length - text2.length,
+                    finalSecondText.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                //color span
+                sText2.setSpan(
+                    ForegroundColorSpan(textColor),
+                    finalSecondText.length - text2.length,
+                    finalSecondText.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                this.tag = sText2
+
+
+                this.text = sText
+            } else
+
+                this.text = finalText
+        } else {
+//            text.subSequence(0,lastChar - text.length)
+        }
+    }
+}
+
+
 //endregion
 
 
