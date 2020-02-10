@@ -25,6 +25,7 @@ import java.io.*
 import java.net.URLConnection
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.util.concurrent.TimeUnit
 
 fun Any?.isNullValue() = this == null
 
@@ -258,6 +259,43 @@ fun convertTimeFormat(dateText: String?, format: String, toFormat: String, local
     return dt
 }
 
+
+/**
+ * Functionality to get millisecond Time ago
+ * */
+fun getMillSecondTimeAgo(date: String, format: String): Long? {
+
+    val df = SimpleDateFormat(format, Locale.ENGLISH)
+    df.timeZone = TimeZone.getTimeZone("UTC")
+    var date2: Date? = null
+    try {
+        date2 = df.parse(date)
+    } catch (err: Exception) {
+        err.printStackTrace()
+    }
+    df.timeZone = TimeZone.getDefault()
+    //get diff millSeconds
+    if (date2 != null) {
+//        var l = (date2.getTime() + TimeZone.getDefault().getOffset(date2.getTime()));
+        val l = System.currentTimeMillis() - date2.time
+        return l
+    } else
+        return null
+}
+
+data class TimeAgo(val days: Long, val hours: Long, val minutes: Long)
+/**
+ * Functionality to get days,hours,minutes ago
+ * */
+fun getTimeAgo(date: String, format: String): TimeAgo? {
+    val milliseconds = getMillSecondTimeAgo(date, format)
+    milliseconds ?: return null
+//    val seconds = TimeUnit.SECONDS.convert(milliseconds, TimeUnit.MILLISECONDS) 1568192245291
+    val minutes = TimeUnit.MINUTES.convert(milliseconds, TimeUnit.MILLISECONDS)
+    val hours = TimeUnit.HOURS.convert(milliseconds, TimeUnit.MILLISECONDS)
+    val days = TimeUnit.DAYS.convert(milliseconds, TimeUnit.MILLISECONDS)
+    return TimeAgo(days, hours, minutes)
+}
 
 /**
  * get time ago from now to specific date
