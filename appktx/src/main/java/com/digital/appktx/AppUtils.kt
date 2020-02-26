@@ -569,7 +569,7 @@ fun getMimeType(context: Context?, url: String): String? {
         if (extension != null) {
             type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase())
         } else {
-            type = "*/*"
+//            type = "*/*"
         }
     }
     return type
@@ -585,6 +585,9 @@ fun File.toBase64(): String? {
     return Base64.encodeToString(bytes, Base64.DEFAULT)
 }
 
+inline fun <reified T>getAs(obj:Any?,block:(o:T) -> Unit){
+    if(obj is T) block(obj)
+}
 
 fun <T> MutableList<T>.removeItemIf(p: (x: T) -> Boolean) {
     var item: T
