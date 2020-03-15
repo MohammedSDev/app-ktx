@@ -1,7 +1,9 @@
 # app-ktx
-![Release](https://jitpack.io/v/clickapps-android/app-ktx.svg)
+![Release](https://jitpack.io/v/MohammedSDev/app-ktx.svg)
 
-
+<!--
+clickapps-android
+-->
 
 
 App-ktx is an common extensions functions that try help you focus on bussines logic & leave rest usually stuff for it.
@@ -24,7 +26,7 @@ allprojects {
 in app level build.gradle
 ```gradle
 dependencies {
-        implementation 'com.github.clickapps-android:app-ktx:<last-build>'
+        implementation 'com.github.MohammedSDev:app-ktx:<last-build>'
 }
 ```
 # Enjoy using app-ktx library,report any bugs you found,request any update ,or even drop me an email gg.goo.mobile@gmail.com
