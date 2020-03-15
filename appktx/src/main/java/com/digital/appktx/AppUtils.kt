@@ -284,6 +284,7 @@ fun getMillSecondTimeAgo(date: String, format: String): Long? {
 }
 
 data class TimeAgo(val days: Long, val hours: Long, val minutes: Long)
+
 /**
  * Functionality to get days,hours,minutes ago
  * */
@@ -462,17 +463,25 @@ fun View.inVisible() {
 fun TextView.isEmptyText(): Boolean {
     return text.toString().isEmptyText()
 }
+
 /**
  *  get index based in all text,not just the specific line.
  */
 fun TextView.getLastCharIndexOfLine(line: Int): Int {
     return this.layout.getLineVisibleEnd(line)
 }
+
 /**
  * set clickable part of text with swipe it whiling clicking.
  * e.g Read more <->Read Less
  * */
-fun TextView.setToggleClickableSequenceText(text: String, text2: String, textColor:Int, maxLines: Int, clickCallBack: (() -> Unit)?) {
+fun TextView.setToggleClickableSequenceText(
+    text: String,
+    text2: String,
+    textColor: Int,
+    maxLines: Int,
+    clickCallBack: (() -> Unit)?
+) {
     if (maxLines <= 0) return
     if (layout.lineCount > maxLines) {
         val lastChar = getLastCharIndexOfLine(maxLines - 1)
@@ -488,7 +497,8 @@ fun TextView.setToggleClickableSequenceText(text: String, text2: String, textCol
                     override fun onClick(widget: View) {
                         //swipe tag <=> text
                         val tag1 = this@setToggleClickableSequenceText.tag as CharSequence
-                        this@setToggleClickableSequenceText.tag = this@setToggleClickableSequenceText.text
+                        this@setToggleClickableSequenceText.tag =
+                            this@setToggleClickableSequenceText.text
                         this@setToggleClickableSequenceText.text = tag1
 
                         clickCallBack.invoke()
@@ -585,9 +595,11 @@ fun File.toBase64(): String? {
     return Base64.encodeToString(bytes, Base64.DEFAULT)
 }
 
-inline fun <reified T>getAs(obj:Any?,block:(o:T) -> Unit){
-    if(obj is T) block(obj)
+inline fun <reified T> getAs(obj: Any?, block: (o: T) -> Unit) {
+    if (obj is T) block(obj)
 }
+
+inline fun <reified T> getAs(obj: Any?): T? = if (obj is T) obj else null
 
 fun <T> MutableList<T>.removeItemIf(p: (x: T) -> Boolean) {
     var item: T
@@ -597,6 +609,19 @@ fun <T> MutableList<T>.removeItemIf(p: (x: T) -> Boolean) {
         if (p(item))
             itemsIterator.remove()
     }
+}
+
+fun <T> MutableList<T>.removeFirstItemIf(p: (x: T) -> Boolean): T? {
+    var item: T? = null
+    val itemsIterator = iterator()
+    while (itemsIterator.hasNext()) {
+        item = itemsIterator.next()
+        if (p(item)) {
+            itemsIterator.remove()
+            return item
+        }
+    }
+    return null
 }
 
 inline fun catchMe(block: () -> Unit) {
@@ -623,4 +648,18 @@ inline fun catchMe(block: () -> Unit, catch: ((e: Exception) -> Unit), finally: 
     } finally {
         finally()
     }
+}
+
+fun arabicNumberToDecimal(number: String): String {
+    val chars = CharArray(number.length)
+    for (x in 0 until number.length) {
+        var ch = number[x]
+        if (ch >= 0x0660.toChar() && ch <= 0x0669.toChar())
+            ch -= 0x0660.toChar() - '0'
+        else if (ch >= 0x06f0.toChar() && ch <= 0x06F9.toChar())
+            ch -= 0x06f0.toChar() - '0'
+        chars[x] = ch
+    }
+
+    return String(chars)
 }
