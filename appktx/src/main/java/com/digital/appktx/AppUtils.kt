@@ -4,12 +4,15 @@ import android.app.Activity
 import android.content.*
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.graphics.Typeface
+import android.graphics.*
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Build
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
+import android.text.method.ScrollingMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.util.Base64
@@ -19,6 +22,8 @@ import android.webkit.MimeTypeMap
 import android.widget.EditText
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.lang.Exception
 import java.util.*
 import java.io.*
@@ -90,6 +95,14 @@ fun String?.toSafetyString(defValue: String = ""): String {
     return if (this?.isEmptyText() != false) defValue else this!!
 }
 
+inline fun <reified T>String.deserialize():T?{
+    return if(isEmptyText()) null
+    else if (T::class.java.isAssignableFrom(List::class.java)) {
+        Gson().fromJson<T>(this,object: TypeToken<T>(){}.type)
+    }else Gson().fromJson<T>(this,T::class.java)
+}
+
+fun Any.serialize():String = Gson().toJson(this)
 
 fun TextView.setCustomTypeFace(fontTypeNameRes: Int) {
     getTypeFace(context, fontTypeNameRes)?.let { fontFace ->
@@ -258,6 +271,9 @@ fun convertTimeFormat(dateText: String?, format: String, toFormat: String, local
     val dt = df.format(date);
     return dt
 }
+
+fun Date.toString(format: String, locale: Locale = Locale.ENGLISH): String =
+    convertDateFormat(this, format, locale)
 
 
 /**
@@ -437,8 +453,51 @@ fun EditText.enableNestedScrolling() {
         }
         false
     }
+}
+
+fun TextView.enableScrolling(){
+    movementMethod = ScrollingMovementMethod()
+}
 
 
+
+fun convertColor(color: String?): Int {
+    return runCatching { Color.parseColor(color) }.getOrElse {
+        Color.WHITE
+    }
+}
+
+fun View.setBgColorFilter(color: Int, keepStroke: Boolean = false) {
+    background.mutate().apply {
+        if (!keepStroke) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                colorFilter = BlendModeColorFilter(color, BlendMode.DST_ATOP)
+            } else {
+                setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+            }
+        } else {
+            if (this is GradientDrawable) {
+                setColor(color)
+            } else {
+            }
+        }
+    }
+}
+
+fun Drawable.setBgColorFilter(color: Int, keepStroke: Boolean = false) {
+    if (!keepStroke) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            colorFilter = BlendModeColorFilter(color, BlendMode.DST_ATOP)
+        } else {
+            setColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+        }
+    } else {
+        if (this is GradientDrawable) {
+            setColor(color)
+        } else {
+            /*nothing*/
+        }
+    }
 }
 
 fun <T : RecyclerView.Adapter<*>> RecyclerView.getAdapter(): T? = adapter as T?
