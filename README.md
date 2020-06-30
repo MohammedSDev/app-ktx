@@ -1,5 +1,5 @@
 # app-ktx
-![Release](https://jitpack.io/v/MohammedSDev/app-ktx.svg)
+![Release](https://jitpack.io/v/mobile-android-libraries/app-ktx.svg)
 
 <!--
 clickapps-android
@@ -26,7 +26,7 @@ allprojects {
 in app level build.gradle
 ```gradle
 dependencies {
-        implementation 'com.github.MohammedSDev:app-ktx:<last-build>'
+        implementation 'com.github.mobile-android-libraries:app-ktx:<last-build>'
 }
 ```
 # Enjoy using app-ktx library,report any bugs you found,request any update ,or even drop me an email gg.goo.mobile@gmail.com
